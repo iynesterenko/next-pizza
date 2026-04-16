@@ -126,7 +126,7 @@ export const products = [
     categoryId: 3,
   },
   {
-    name: 'Картофель из печи с соусом 🌱',
+    name: 'Картофель из печи с соусом ',
     imageUrl: 'https://media.dodostatic.net/image/r:292x292/11EED646A9CD324C962C6BEA78124F19.webp',
     categoryId: 3,
   },
@@ -136,7 +136,7 @@ export const products = [
     categoryId: 3,
   },
   {
-    name: 'Острый Додстер 🌶️🌶️',
+    name: 'Острый Додстер ',
     imageUrl: 'https://media.dodostatic.net/image/r:292x292/11EE796FD3B594068F7A752DF8161D04.webp',
     categoryId: 3,
   },
@@ -156,7 +156,7 @@ export const products = [
     categoryId: 4,
   },
   {
-    name: 'Классический молочный коктейль 👶',
+    name: 'Классический молочный коктейль ',
     imageUrl: 'https://media.dodostatic.net/image/r:292x292/11EE796F93FB126693F96CB1D3E403FB.webp',
     categoryId: 4,
   },

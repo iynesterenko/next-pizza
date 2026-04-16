@@ -144,7 +144,7 @@ async function seedPizzas() {
         items.push({
           productId: product.id,
           pizzaType: type as 1 | 2,
-          size: size as 20 | 30 | 40,
+          size: size as 30 | 40 | 50,
           price: generatePrice(),
         })
       })

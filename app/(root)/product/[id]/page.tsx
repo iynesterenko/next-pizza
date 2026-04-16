@@ -1,5 +1,5 @@
-import { Container, PizzaImage, Title } from "@/components/shared";
-import { GroupVariants } from "@/components/shared/product-image/group-variant";
+import { Container, PizzaImage, Title } from "@/shared/components/shared";
+import { GroupVariants } from "@/shared/components/shared/product-image/group-variant";
 import { prisma } from "@/prisma/prisma-client";
 import { notFound } from "next/navigation";
 
@@ -8,9 +8,8 @@ export default async function ProductPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = await params; // ✅ обязательно
+  const { id } = await params;
 
-  console.log("ID:", id, "Number:", Number(id));
 
   const product = await prisma.product.findFirst({
     where: { id: Number(id) },
@@ -43,7 +42,6 @@ export default async function ProductPage({
             size="md"
             className="font-extrabold mb-1"
           />
-          <p>qweqweqweqweqw</p>
           <GroupVariants
             value="2"
             items={[

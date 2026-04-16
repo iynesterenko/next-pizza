@@ -1,4 +1,4 @@
-import { Header } from '@/components/shared/header';
+import { Header } from '@/shared/components/shared/header';
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { Nunito } from 'next/font/google';
