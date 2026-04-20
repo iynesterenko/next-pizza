@@ -51,9 +51,9 @@ const updatePrices = (prices:number[]) => {
         onClickCheckbox={filters.setSizes}
         selected={filters.sizes}
         items={[
-          { text: "20 см", value: "20" },
           { text: "30 см", value: "30" },
           { text: "40 см", value: "40" },
+          { text: "50 см", value: "50" },
         ]}
       />
 

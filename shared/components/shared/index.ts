@@ -11,4 +11,6 @@ export { SearchInput } from "./search-input";
 export { PizzaImage } from "./pizza-image";
 export { ChooseProductForm } from "./choose-product-form";
 export { IngredientItem } from "./ingredient-item";
+export { CartButton } from "./cart-button";
+export { CartDrawer } from "./cart-drawer";
 export * from "./modals";

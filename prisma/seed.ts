@@ -8,7 +8,7 @@ const random = (min: number, max: number) =>
 
 const generatePrice = () => random(190, 600)
 
-const pizzaSizes = [20, 30, 40]
+const pizzaSizes = [30, 40, 50]
 const pizzaTypes = [1, 2]
 
 /*
@@ -140,15 +140,24 @@ async function seedPizzas() {
     const items: Prisma.ProductItemUncheckedCreateInput[] = []
 
     pizzaTypes.forEach((type) => {
-      pizzaSizes.forEach((size) => {
-        items.push({
-          productId: product.id,
-          pizzaType: type as 1 | 2,
-          size: size as 30 | 40 | 50,
-          price: generatePrice(),
-        })
-      })
-    })
+  pizzaSizes.forEach((size) => {
+
+    if (
+      pizza.name === 'Чоризо' &&
+      size === 30 &&
+      type === 1 
+    ) {
+      return;
+    }
+
+    items.push({
+      productId: product.id,
+      pizzaType: type as 1 | 2,
+      size: size as 30 | 40 | 50,
+      price: generatePrice(),
+    });
+  });
+});
 
     await prisma.productItem.createMany({
       data: items,

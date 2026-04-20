@@ -3,6 +3,7 @@ import { GroupVariants } from "@/shared/components/shared/product-image/group-va
 import { prisma } from "@/prisma/prisma-client";
 import { notFound } from "next/navigation";
 
+
 export default async function ProductPage({
   params,
 }: {
@@ -47,7 +48,7 @@ export default async function ProductPage({
             items={[
               { name: "Small", value: "1" },
               { name: "Medium", value: "2" },
-              { name: "Large", value: "3", disabled: true },
+              { name: "Large", value: "3" },
             ]}
           />
         </div>
