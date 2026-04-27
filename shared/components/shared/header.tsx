@@ -10,6 +10,7 @@ import { SearchInput } from "./search-input";
 import { CartButton } from "./";
 
 export const Header: React.FC = () => {
+
   return (
     <header className="border-b border-gray-200">
       <Container className="flex items-center justify-between py-4">

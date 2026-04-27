@@ -22,6 +22,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "shared/lib/get-available-pizza-sizes.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "shared/lib/get-available-pizza-sizes.ts","**/*.d.ts"],
   "exclude": ["node_modules"]
 }

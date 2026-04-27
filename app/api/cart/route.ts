@@ -1,16 +1,15 @@
-import { prisma } from '@/prisma/prisma-client';
-import { NextRequest, NextResponse } from 'next/server';
-import crypto from 'crypto';
-import { CreateCartItemValues } from '@/shared/services/dto/cart.dto';
-import { findOrCreateCart } from '@/shared/lib/find-or-create-cart';
-import { updateCartTotalAmount } from '@/shared/lib/update-cart-total-amount';
+import { prisma } from "@/prisma/prisma-client";
+import { NextRequest, NextResponse } from "next/server";
+import crypto from "crypto";
+import { CreateCartItemValues } from "@/shared/services/dto/cart.dto";
+import { findOrCreateCart } from "@/shared/lib/find-or-create-cart";
+import { updateCartTotalAmount } from "@/shared/lib/update-cart-total-amount";
 
-export const runtime = 'nodejs'; 
-
+export const runtime = "nodejs";
 
 export async function GET(req: NextRequest) {
   try {
-    const token = req.cookies.get('cartToken')?.value;
+    const token = req.cookies.get("cartToken")?.value;
 
     if (!token) {
       return NextResponse.json({ totalAmount: 0, items: [] });
@@ -23,7 +22,7 @@ export async function GET(req: NextRequest) {
       include: {
         items: {
           orderBy: {
-            createdAt: 'desc',
+            createdAt: "desc",
           },
           include: {
             productItem: {
@@ -44,14 +43,17 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(userCart);
   } catch (error) {
-    console.log('[CART_GET] Server error', error);
-    return NextResponse.json({ message: 'Failed to retrieve the cart' }, { status: 500 });
+    console.log("[CART_GET] Server error", error);
+    return NextResponse.json(
+      { message: "Failed to retrieve the cart" },
+      { status: 500 },
+    );
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
-    let token = req.cookies.get('cartToken')?.value;
+    let token = req.cookies.get("cartToken")?.value;
 
     if (!token) {
       token = crypto.randomUUID();
@@ -62,18 +64,24 @@ export async function POST(req: NextRequest) {
     const data = (await req.json()) as CreateCartItemValues;
 
     // Check if the same cart item exists (with same ingredients)
-    const findCartItem = await prisma.cartItem.findFirst({
+    const cartItems = await prisma.cartItem.findMany({
       where: {
         cartId: userCart.id,
         productItemId: data.productItemId,
-        ingredients: data.ingredients?.length 
-          ? {
-              every: {
-                id: { in: data.ingredients },
-              },
-            }
-          : undefined, // Handle case when no ingredients
       },
+      include: {
+        ingredients: true,
+      },
+    });
+
+    const incomingIds = (data.ingredients ?? []).slice().sort();
+
+    const findCartItem = cartItems.find((item) => {
+      const itemIds = item.ingredients.map((i) => i.id).sort();
+
+      if (itemIds.length !== incomingIds.length) return false;
+
+      return itemIds.every((id, index) => id === incomingIds[index]);
     });
 
     // If item found, increment quantity by 1
@@ -93,7 +101,7 @@ export async function POST(req: NextRequest) {
           cartId: userCart.id,
           productItemId: data.productItemId,
           quantity: 1,
-          ingredients: data.ingredients?.length 
+          ingredients: data.ingredients?.length
             ? { connect: data.ingredients.map((id) => ({ id })) }
             : undefined,
         },
@@ -103,17 +111,20 @@ export async function POST(req: NextRequest) {
     const updatedUserCart = await updateCartTotalAmount(token);
 
     const resp = NextResponse.json(updatedUserCart);
-    resp.cookies.set('cartToken', token, {
+    resp.cookies.set("cartToken", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
       maxAge: 60 * 60 * 24 * 30, // 30 days
-      path: '/',
+      path: "/",
     });
-    
+
     return resp;
   } catch (error) {
-    console.log('[CART_POST] Server error', error);
-    return NextResponse.json({ message: 'Failed to create the cart' }, { status: 500 });
+    console.log("[CART_POST] Server error", error);
+    return NextResponse.json(
+      { message: "Failed to create the cart" },
+      { status: 500 },
+    );
   }
 }

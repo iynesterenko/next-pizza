@@ -2,6 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 import {
   Sheet,
@@ -12,13 +13,16 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/shared/components/ui/sheet";
-import Link from "next/link";
+
 import { Button } from "../ui";
-import { ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+
 import { CartDrawerItem } from "./cart-drawer-item";
 import { getCartItemDetails } from "@/shared/lib/get-cart-item-details";
 import { useCartStore } from "@/shared/store";
 import { PizzaSize, PizzaType } from "@/shared/constants/pizza";
+
+import { useShallow } from "zustand/react/shallow";
 
 interface Props {
   className?: string;
@@ -26,85 +30,141 @@ interface Props {
 
 export const CartDrawer: React.FC<React.PropsWithChildren<Props>> = ({
   children,
-  className,
 }) => {
-  const totalAmount = useCartStore((state) => state.totalAmount);
-  const fetchCartItems = useCartStore((state) => state.fetchCartItems);
-  const items = useCartStore((state) => state.items);
-  const updateItemQuantity = useCartStore((state) => state.updateItemQuantity);
-  const removeCartItem = useCartStore((state) => state.removeCartItem);
-  const onClickCountButton = (
-    id: number,
-    quantity: number,
-    type: "plus" | "minus",
-  ) => {
-    const newQuantity = type === "plus" ? quantity + 1 : quantity - 1;
-    updateItemQuantity(id, newQuantity);
-  };
+ const {
+  totalAmount,
+  items,
+  fetchCartItems,
+  updateItemQuantity,
+  removeCartItem,
+  loading,
+} = useCartStore(
+  useShallow((state) => ({
+    totalAmount: state.totalAmount,
+    items: state.items,
+    fetchCartItems: state.fetchCartItems,
+    updateItemQuantity: state.updateItemQuantity,
+    removeCartItem: state.removeCartItem,
+    loading: state.loading,
+  }))
+);
+
   React.useEffect(() => {
     fetchCartItems();
-  }, [fetchCartItems]);
-  console.log(items);
+  }, []);
+
+  const onClickCountButton = React.useCallback(
+    (id: number, quantity: number, type: "plus" | "minus") => {
+      const newQuantity = type === "plus" ? quantity + 1 : quantity - 1;
+      if (newQuantity <= 0) return;
+      updateItemQuantity(id, newQuantity);
+    },
+    [updateItemQuantity]
+  );
+
+  const isEmpty = totalAmount === 0;
+
   return (
     <Sheet>
       <SheetTrigger asChild>{children}</SheetTrigger>
+
       <SheetContent className="flex flex-col justify-between pb-0 bg-[#F4F1EE]">
+        
         <SheetHeader>
           <SheetTitle>
-            В корзине <span className="font-bold">{items.length} items</span>
+            {isEmpty ? "Cart" : `In the cart ${items.length} items`}
           </SheetTitle>
         </SheetHeader>
-        <div className=" overflow-auto scrollbar flex-1">
-          {items.map((item) => (
-            <div className="mb-2" key={item.id}>
-              <CartDrawerItem
-                key={item.id}
-                id={item.id}
-                imageUrl={item.imageUrl}
-                details={
-                  item.pizzaSize
-                    ? getCartItemDetails(
-                        item.pizzaType as PizzaType,
-                        item.pizzaSize as PizzaSize,
-                        item.ingredients,
-                      )
-                    : ""
-                }
-                name={item.name}
-                price={item.price}
-                quantity={item.quantity}
-                onClickRemove={()=>removeCartItem(item.id)}
 
-                onClickCountButton={(type) =>
-                  onClickCountButton(item.id, item.quantity, type)
-                }
-              />
-            </div>
-          ))}
-        </div>
+        {/* ================= EMPTY ================= */}
+        {isEmpty && !loading && (
+          <div className="flex flex-col items-center justify-center h-full text-center gap-4">
+            <Image
+              src="/assets/images/empty-box.png"
+              alt="Empty cart"
+              width={120}
+              height={120}
+            />
 
-        <SheetFooter className="-mx-0 bg-white p-8">
-          <div className="w-full">
-            <div className="flex mb-4">
-              <span className="flex flex-1 text-lg text-neutral-500">
-                Итого
-                <div className="flex-1 border-b border-dashed border-b-neutral-200 relative -top-1 mx-2" />
-              </span>
+            <p className="text-lg font-bold">Cart is empty</p>
 
-              <span className="font-bold text-lg">
-                {" "}
-                {totalAmount.toFixed(2)} $
-              </span>
-            </div>
+            <p className="text-muted-foreground max-w-[250px]">
+              Add products to your cart and they will appear here
+            </p>
 
-            <Link href="/checkout">
-              <Button type="submit" className="w-full h-12 text-base">
-                Оформить заказ
-                <ArrowRight className="w-5 ml-2" />
+            <SheetClose asChild>
+              <Button className="w-64 h-12 text-base" size="lg">
+                <ArrowLeft className="w-5 mr-2" />
+                Back to menu
               </Button>
-            </Link>
+            </SheetClose>
           </div>
-        </SheetFooter>
+        )}
+
+        {/* ================= LOADING ================= */}
+        {loading && (
+          <div className="flex flex-col gap-3 p-4">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-20 bg-gray-200 animate-pulse rounded-lg" />
+            ))}
+          </div>
+        )}
+
+        {/* ================= ITEMS ================= */}
+        {!isEmpty && !loading && (
+          <>
+            <div className="overflow-auto flex-1 p-2">
+              {items.map((item) => (
+                <CartDrawerItem
+                  key={item.id}
+                  disabled={item.disabled}
+                  id={item.id}
+                  imageUrl={item.imageUrl}
+                  name={item.name}
+                  price={item.price}
+                  quantity={item.quantity}
+                  details={
+                    item.pizzaSize
+                      ? getCartItemDetails(
+                          item.pizzaType as PizzaType,
+                          item.pizzaSize as PizzaSize,
+                          item.ingredients
+                        )
+                      : ""
+                  }
+                  onClickRemove={() => removeCartItem(item.id)}
+                  onClickCountButton={(type) =>
+                    onClickCountButton(item.id, item.quantity, type)
+                  }
+                />
+              ))}
+            </div>
+
+            {/* ================= FOOTER ================= */}
+            <SheetFooter className="bg-white p-6">
+              <div className="w-full">
+                <div className="flex mb-4">
+                  <span className="flex flex-1 text-lg text-neutral-500">
+                    Итого
+                    <div className="flex-1 border-b border-dashed mx-2" />
+                  </span>
+
+                  <span className="font-bold text-lg">
+                    {totalAmount.toFixed(2)} $
+                  </span>
+                </div>
+
+                {/* ✅ FIX Link + Button */}
+                <Button asChild className="w-full h-12 text-base">
+                  <Link href="/checkout">
+                    Checkout
+                    <ArrowRight className="w-5 ml-2" />
+                  </Link>
+                </Button>
+              </div>
+            </SheetFooter>
+          </>
+        )}
       </SheetContent>
     </Sheet>
   );
