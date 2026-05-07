@@ -21,45 +21,24 @@ import { CartDrawerItem } from "./cart-drawer-item";
 import { getCartItemDetails } from "@/shared/lib/get-cart-item-details";
 import { useCartStore } from "@/shared/store";
 import { PizzaSize, PizzaType } from "@/shared/constants/pizza";
-
+import { useCart } from "@/shared/hooks";
 import { useShallow } from "zustand/react/shallow";
 
 interface Props {
   className?: string;
 }
 
-export const CartDrawer: React.FC<React.PropsWithChildren<Props>> = ({
-  children,
-}) => {
- const {
-  totalAmount,
-  items,
-  fetchCartItems,
-  updateItemQuantity,
-  removeCartItem,
-  loading,
-} = useCartStore(
-  useShallow((state) => ({
-    totalAmount: state.totalAmount,
-    items: state.items,
-    fetchCartItems: state.fetchCartItems,
-    updateItemQuantity: state.updateItemQuantity,
-    removeCartItem: state.removeCartItem,
-    loading: state.loading,
-  }))
-);
-
-  React.useEffect(() => {
-    fetchCartItems();
-  }, []);
-
+export const CartDrawer: React.FC<React.PropsWithChildren> = ({ children }) => {
+  const { totalAmount, items, updateItemQuantity, removeCartItem, loading } =
+    useCart();
+  const [redirecting, setRedirecting] = React.useState(false);
   const onClickCountButton = React.useCallback(
     (id: number, quantity: number, type: "plus" | "minus") => {
       const newQuantity = type === "plus" ? quantity + 1 : quantity - 1;
       if (newQuantity <= 0) return;
       updateItemQuantity(id, newQuantity);
     },
-    [updateItemQuantity]
+    [updateItemQuantity],
   );
 
   const isEmpty = totalAmount === 0;
@@ -69,7 +48,6 @@ export const CartDrawer: React.FC<React.PropsWithChildren<Props>> = ({
       <SheetTrigger asChild>{children}</SheetTrigger>
 
       <SheetContent className="flex flex-col justify-between pb-0 bg-[#F4F1EE]">
-        
         <SheetHeader>
           <SheetTitle>
             {isEmpty ? "Cart" : `In the cart ${items.length} items`}
@@ -105,7 +83,10 @@ export const CartDrawer: React.FC<React.PropsWithChildren<Props>> = ({
         {loading && (
           <div className="flex flex-col gap-3 p-4">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-20 bg-gray-200 animate-pulse rounded-lg" />
+              <div
+                key={i}
+                className="h-20 bg-gray-200 animate-pulse rounded-lg"
+              />
             ))}
           </div>
         )}
@@ -128,7 +109,7 @@ export const CartDrawer: React.FC<React.PropsWithChildren<Props>> = ({
                       ? getCartItemDetails(
                           item.pizzaType as PizzaType,
                           item.pizzaSize as PizzaSize,
-                          item.ingredients
+                          item.ingredients,
                         )
                       : ""
                   }
@@ -155,7 +136,12 @@ export const CartDrawer: React.FC<React.PropsWithChildren<Props>> = ({
                 </div>
 
                 {/* ✅ FIX Link + Button */}
-                <Button asChild className="w-full h-12 text-base">
+                <Button
+                  loading={redirecting}
+                  onClick={() => setRedirecting(true)}
+                  asChild
+                  className="w-full h-12 text-base"
+                >
                   <Link href="/checkout">
                     Checkout
                     <ArrowRight className="w-5 ml-2" />

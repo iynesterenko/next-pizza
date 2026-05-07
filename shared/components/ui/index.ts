@@ -8,3 +8,5 @@ export {RadioGroup} from './radio-group'
 export {Select} from './select'
 export {Skeleton} from './skeleton'
 export {Slider} from './slider'
+export {Textarea} from './textarea'
+export { Sheet } from "./sheet";

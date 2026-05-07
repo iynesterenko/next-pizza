@@ -1,6 +1,12 @@
 import { CartDTO } from '../services/dto/cart.dto';
 import { calcCartItemTotalPrice } from './calc-cart-item-total-price';
 
+
+export type CartIngredient = {
+  name: string;
+  price: number;
+};
+
 export type CartStateItem = {
   id: number;
   quantity: number;
@@ -10,8 +16,9 @@ export type CartStateItem = {
   disabled?: boolean;
   pizzaSize?: number | null;
   pizzaType?: number | null;
-  ingredients: Array<{ name: string; price: number }>;
+  ingredients: CartIngredient[];
 };
+
 
 interface ReturnProps {
   items: CartStateItem[];
