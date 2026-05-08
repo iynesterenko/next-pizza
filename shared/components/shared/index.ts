@@ -28,7 +28,7 @@ export { ClearButton } from './clear-button';
 export { ProfileButton } from './profile-button';
 export { InfoBlock } from './info-block';
 export {PayOrderTemplate} from './email-temapltes/pay-order';
-// export { ProfileForm } from './profile-form';
+export { ProfileForm } from './profile-form';
 export * from './email-temapltes';
 export * from './checkout';
 export * from './form';

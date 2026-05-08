@@ -60,10 +60,11 @@ export default function CheckoutPage() {
       toast.error('Заказ успешно оформлен! 📝 Переход на оплату... ', {
         icon: '✅',
       });
+      location.href = `/`;
 
-      if (orderId) {
-        location.href = `/order/${orderId}`;
-      }
+      // if (orderId) {
+      //   location.href = `/order/${orderId}`;
+      // }
     } catch (err) {
       console.log(err);
       setSubmitting(false);

@@ -79,10 +79,10 @@ export async function createOrder(data: CheckoutFormValues): Promise<number> {
         cartId: userCart.id,
       },
     });
-    
 
 
-    const paymentUrl = "https://yookassa.ru/checkout/payments/" + order.id;
+
+    const paymentUrl = "http://localhost:3000/payment/" + order.id;
     await sendEmail(
       data.email,
       `Next Pizza / Оплатите заказ #${order.id}`,

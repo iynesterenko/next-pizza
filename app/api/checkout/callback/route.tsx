@@ -10,7 +10,6 @@ export async function POST(req: NextRequest) {
   try {
     const body = (await req.json()) as PaymentCallbackData;
 
-    console.log('[YOOKASSA CALLBACK]', body);
 
     const orderId = Number(body.object?.metadata?.order_id);
 
